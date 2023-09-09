@@ -8,11 +8,11 @@
 </head>
 
 <body>
-    <canvas width="600" height="600" id="myCanvas">.........................</canvas>
+    <canvas width="700" height="600" id="myCanvas">.........................</canvas>
 
     <style>
         #myCanvas {
-            border: 3px solid #000;
+            border: 40px solid #e40e0e;
             margin: 3em;
         }
     </style>
@@ -79,10 +79,17 @@
             }
         }
 
-        const player = new Rectangulo(255, 255, 50, 50, "black");
+        const player = new Rectangulo(5, 5, 50, 50, "black");
         const target = new Rectangulo(350, 350, 40, 40, "black");
-        obstaculosIndestruibles.push(new Rectangulo(65, 50, 360, 50, "gray"));
-        obstaculosIndestruibles.push(new Rectangulo(65, 410, 360, 50, "gray"));
+    
+    //stones
+    for (let j = 0; j < 5; j++) {
+        for (let i = 0; i < 6; i++) {
+            obstaculosIndestruibles.push(new Rectangulo(70 + i * 100, 70 + j * 100, 40, 40, "blue"));
+        }
+    }
+       /* obstaculosIndestruibles.push(new Rectangulo(65, 50, 360, 50, "gray"));
+        obstaculosIndestruibles.push(new Rectangulo(65, 410, 360, 50, "gray"));*/
 
 
         //var t_h, t_w = 40;
@@ -114,25 +121,25 @@
 
         function update() {
             if (!pause) {
-                switch (dir) {
-                    case 87:
-                        player.y -= speed;
-                        if (player.y < -50) { player.y = 550 }
-                        break;
-                    case 83:
-                        player.y += speed;
-                        if (player.y > 500) { player.y = -50 }
-                        break;
-                    case 65:
-                        player.x -= speed;
-                        if (player.x < -50) { player.x = 500 }
-                        break;
-                    case 68:
-                        player.x += speed;
-                        if (player.x > 550) { player.x = -50 }
+    switch (dir) {
+        case 87: // Tecla W (arriba)
+            player.y -= speed;
+            if (player.y < 0) { player.y = 0; } // Evitar que se salga por arriba
+            break;
+        case 83: // Tecla S (abajo)
+            player.y += speed;
+            if (player.y > 550) { player.y = 550; } // Evitar que se salga por abajo
+            break;
+        case 65: // Tecla A (izquierda)
+            player.x -= speed;
+            if (player.x < 0) { player.x = 0; } // Evitar que se salga por la izquierda
+            break;
+        case 68: // Tecla D (derecha)
+            player.x += speed;
+            if (player.x > 550) { player.x = 550; } // Evitar que se salga por la derecha
+            break;
+    }
 
-                        break;
-                }
 
                 if (player.seTocan(target)) {
                     target.x = Math.random() * (460) + 0;
