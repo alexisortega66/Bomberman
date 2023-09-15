@@ -8,7 +8,7 @@
 </head>
 
 <body>
-    <canvas width="700" height="600" id="myCanvas">.........................</canvas>
+   <center> <canvas width="730" height="650" id="myCanvas">.........................</canvas></center>
 
     <style>
         #myCanvas {
@@ -33,7 +33,7 @@
         const canvas = document.getElementById('myCanvas');
         const ctx = canvas.getContext('2d')
      
-        var speed = 1;
+        var speed = 5;
         var dir = 0;
      
         let obstaculosDestruibles = [];
@@ -48,8 +48,12 @@
         comida.src = "bambu.png"; 
         let audio = new Audio();
         audio.src = "point.mp3";*/
-
-
+        let piedra = new Image();
+        piedra.src = "bloques.png";
+        let algas = new Image();
+        algas.src = "algas-marinas.png";
+        let coral = new Image();
+        coral.src = "coral.png";
 
         class Rectangulo {
             constructor(x, y, w, h, c) {
@@ -61,10 +65,12 @@
 
 
             }
-            paint(ctx) {
-                ctx.fillStyle = this.c;
-                ctx.fillRect(this.x, this.y, this.w, this.h);
-                ctx.strokeRect(this.x, this.y, this.w, this.h);
+            paint() {
+                ctx.drawImage(coral,this.x,this.y,this.w,this.h);
+
+            }
+            murosIndestructible(){
+                ctx.drawImage(piedra,this.x,this.y,this.w,this.h);
 
             }
             seTocan(target) {
@@ -79,16 +85,58 @@
             }
         }
 
-        const player = new Rectangulo(5, 5, 50, 50, "black");
-        const target = new Rectangulo(350, 350, 40, 40, "black");
+        class bombas {
+constructor(x, y, w, h){
+this.x=x;
+this.y=y;
+this.w=w;
+this.h=h;
+}
+dibujarMedusa(){
+    drawImage(medusa,this.x,this.y,this.w,this.h);
+}
+
+
+
+        }
+
+        class muro{
+            constructor(x,y,w,h){
+this.x=x;
+this.y=y;
+this.w=w;
+this.h=h;
+
+            }
+
+             dibuarMuro() {
+                ctx.drawImage(algas, this.x,this.y,this.w,this.h);
+ 
+            }
+
+        }
+
+        const player = new Rectangulo(5, 5, 30, 30, "black");
+        const target = new Rectangulo(350, 350, 30, 30, "black");
     
     //stones
-    for (let j = 0; j < 5; j++) {
-        for (let i = 0; i < 6; i++) {
-            obstaculosIndestruibles.push(new Rectangulo(70 + i * 100, 70 + j * 100, 40, 40, "blue"));
-        }
+   // Crear cuadros azules con cuadros marrones entre ellos
+for (let j = 0; j < 9; j++) {
+  for (let i = 0; i < 10; i++) {
+    if (i % 2 === 0&&j%2==0) {
+      obstaculosIndestruibles.push(new Rectangulo(20 + i * 70, 20 + j * 70, 50, 50, "blue"));
+    } else {
+      obstaculosDestruibles.push(new muro(20 + i * 70, 20 + j * 70, 50, 50, "brown"));
     }
-       /* obstaculosIndestruibles.push(new Rectangulo(65, 50, 360, 50, "gray"));
+  }
+}
+
+function dibujar(){
+
+}
+
+// Dibuja los cuadros en el canvas
+  /* obstaculosIndestruibles.push(new Rectangulo(65, 50, 360, 50, "gray"));
         obstaculosIndestruibles.push(new Rectangulo(65, 410, 360, 50, "gray"));*/
 
 
@@ -98,19 +146,19 @@
             switch (e.keyCode) {
                 case 87:
                     if (!pause) dir = e.keyCode;
-                    //  y-=10
+                      player.y-=speed
                     break;
                 case 83:
                     if (!pause) dir = e.keyCode;
-                    //  y+=10
+                    player.y+=speed
                     break;
                 case 65:
                     if (!pause) dir = e.keyCode;
-                    //   x-=10
+                       player.x-=speed
                     break;
                 case 68:
                     if (!pause) dir = e.keyCode;
-                    //   x+=10
+                       player.x+=speed
                     break;
                 case 32:
                     //dir=
@@ -123,19 +171,15 @@
             if (!pause) {
     switch (dir) {
         case 87: // Tecla W (arriba)
-            player.y -= speed;
             if (player.y < 0) { player.y = 0; } // Evitar que se salga por arriba
             break;
         case 83: // Tecla S (abajo)
-            player.y += speed;
             if (player.y > 550) { player.y = 550; } // Evitar que se salga por abajo
             break;
         case 65: // Tecla A (izquierda)
-            player.x -= speed;
             if (player.x < 0) { player.x = 0; } // Evitar que se salga por la izquierda
             break;
         case 68: // Tecla D (derecha)
-            player.x += speed;
             if (player.x > 550) { player.x = 550; } // Evitar que se salga por la derecha
             break;
     }
@@ -188,10 +232,10 @@
                 ctx.fillStyle = "black";
                 ctx.fillText("SCORE: " + score, 10, 25)
                 player.c = random_rgba();
-                player.paint(ctx);
+                player.paint();
              //   ctx.drawImage(image, player.x, player.y,50,50);
 
-                target.paint(ctx);
+                target.paint();
                 //ctx.drawImage(comida, target.x, target.y,40,40);
 
 
@@ -207,7 +251,11 @@ for (let i = 0; i < 4; i++) { // Cambia el 4 al número de cuadros que desees
     ctx.fillRect(x, y, cuadroWidth, cuadroHeight);
 }*/
                 for (var i = obstaculosIndestruibles.length - 1; i >= 0; i--) {
-                    obstaculosIndestruibles[i].paint(ctx);
+                    obstaculosIndestruibles[i].paint();
+
+                }
+                for (var i = obstaculosDestruibles.length - 1; i >= 0; i--) {
+                    obstaculosDestruibles[i].dibuarMuro();
 
                 }
 
