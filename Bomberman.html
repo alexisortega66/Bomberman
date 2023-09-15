@@ -8,7 +8,8 @@
 </head>
 
 <body>
-   <center> <canvas width="730" height="650" id="myCanvas">.........................</canvas></center>
+    <center> <b><label for="score">SCORE: </label></b></center>
+    <center> <canvas width="730" height="650" id="myCanvas">.........................</canvas></center>
 
     <style>
         #myCanvas {
@@ -28,14 +29,14 @@
         //HACER GANADOR
         //CONTEO DE BLOQUES DESTRUIDOSS
         //SONIDOS
-        
+
 
         const canvas = document.getElementById('myCanvas');
         const ctx = canvas.getContext('2d')
-     
+
         var speed = 5;
         var dir = 0;
-     
+
         let obstaculosDestruibles = [];
         let obstaculosIndestruibles = [];
 
@@ -48,12 +49,16 @@
         comida.src = "bambu.png"; 
         let audio = new Audio();
         audio.src = "point.mp3";*/
+        let audio = new Audio();
+        audio.src = "bob-theme.mp3";
         let piedra = new Image();
         piedra.src = "bloques.png";
         let algas = new Image();
         algas.src = "algas-marinas.png";
         let coral = new Image();
         coral.src = "coral.png";
+        let jugador = new Image();
+        jugador.src="bobEsponja.png"
 
         class Rectangulo {
             constructor(x, y, w, h, c) {
@@ -66,11 +71,11 @@
 
             }
             paint() {
-                ctx.drawImage(coral,this.x,this.y,this.w,this.h);
+                ctx.drawImage(jugador, this.x, this.y, this.w, this.h);
 
             }
-            murosIndestructible(){
-                ctx.drawImage(piedra,this.x,this.y,this.w,this.h);
+            murosIndestructible() {
+                ctx.drawImage(coral, this.x, this.y, this.w, this.h);
 
             }
             seTocan(target) {
@@ -86,58 +91,62 @@
         }
 
         class bombas {
-constructor(x, y, w, h){
-this.x=x;
-this.y=y;
-this.w=w;
-this.h=h;
-}
-dibujarMedusa(){
-    drawImage(medusa,this.x,this.y,this.w,this.h);
-}
+            constructor(x, y, w, h) {
+                this.x = x;
+                this.y = y;
+                this.w = w;
+                this.h = h;
+            }
+            dibujarMedusa() {
+                drawImage(medusa, this.x, this.y, this.w, this.h);
+            }
 
 
 
         }
 
-        class muro{
-            constructor(x,y,w,h){
-this.x=x;
-this.y=y;
-this.w=w;
-this.h=h;
+        class muro {
+            constructor(x, y, w, h) {
+                this.x = x;
+                this.y = y;
+                this.w = w;
+                this.h = h;
 
             }
 
-             dibuarMuro() {
-                ctx.drawImage(algas, this.x,this.y,this.w,this.h);
- 
+            dibuarMuro() {
+                ctx.drawImage(algas, this.x, this.y, this.w, this.h);
+
             }
 
         }
 
-        const player = new Rectangulo(5, 5, 30, 30, "black");
+        const player = new Rectangulo(5, 5, 40, 40, "black");
         const target = new Rectangulo(350, 350, 30, 30, "black");
-    
-    //stones
-   // Crear cuadros azules con cuadros marrones entre ellos
-for (let j = 0; j < 9; j++) {
-  for (let i = 0; i < 10; i++) {
-    if (i % 2 === 0&&j%2==0) {
-      obstaculosIndestruibles.push(new Rectangulo(20 + i * 70, 20 + j * 70, 50, 50, "blue"));
-    } else {
-      obstaculosDestruibles.push(new muro(20 + i * 70, 20 + j * 70, 50, 50, "brown"));
-    }
-  }
-}
 
-function dibujar(){
+        //stones
+        // Crear cuadros azules con cuadros marrones entre ellos
+        for (let j = 0; j < 9; j++) {
+            for (let i = 0; i < 10; i++) {
+                if (i * 30 > 40 || j * 30 > 40) {
 
-}
+                if (i % 2 === 0 && j % 2 == 0) {
 
-// Dibuja los cuadros en el canvas
-  /* obstaculosIndestruibles.push(new Rectangulo(65, 50, 360, 50, "gray"));
-        obstaculosIndestruibles.push(new Rectangulo(65, 410, 360, 50, "gray"));*/
+                    obstaculosIndestruibles.push(new Rectangulo(20 + i * 70, 20 + j * 70, 50, 50, "blue"));
+                } else {
+                    obstaculosDestruibles.push(new muro(20 + i * 70, 20 + j * 70, 50, 50, "brown"));
+                }
+            }
+        }
+        }
+
+        function dibujar() {
+
+        }
+
+        // Dibuja los cuadros en el canvas
+        /* obstaculosIndestruibles.push(new Rectangulo(65, 50, 360, 50, "gray"));
+              obstaculosIndestruibles.push(new Rectangulo(65, 410, 360, 50, "gray"));*/
 
 
         //var t_h, t_w = 40;
@@ -146,19 +155,19 @@ function dibujar(){
             switch (e.keyCode) {
                 case 87:
                     if (!pause) dir = e.keyCode;
-                      player.y-=speed
+                    player.y -= speed
                     break;
                 case 83:
                     if (!pause) dir = e.keyCode;
-                    player.y+=speed
+                    player.y += speed
                     break;
                 case 65:
                     if (!pause) dir = e.keyCode;
-                       player.x-=speed
+                    player.x -= speed
                     break;
                 case 68:
                     if (!pause) dir = e.keyCode;
-                       player.x+=speed
+                    player.x += speed
                     break;
                 case 32:
                     //dir=
@@ -169,20 +178,20 @@ function dibujar(){
 
         function update() {
             if (!pause) {
-    switch (dir) {
-        case 87: // Tecla W (arriba)
-            if (player.y < 0) { player.y = 0; } // Evitar que se salga por arriba
-            break;
-        case 83: // Tecla S (abajo)
-            if (player.y > 550) { player.y = 550; } // Evitar que se salga por abajo
-            break;
-        case 65: // Tecla A (izquierda)
-            if (player.x < 0) { player.x = 0; } // Evitar que se salga por la izquierda
-            break;
-        case 68: // Tecla D (derecha)
-            if (player.x > 550) { player.x = 550; } // Evitar que se salga por la derecha
-            break;
-    }
+                switch (dir) {
+                    case 87: // Tecla W (arriba)
+                        if (player.y < 0) { player.y = 0; } // Evitar que se salga por arriba
+                        break;
+                    case 83: // Tecla S (abajo)
+                        if (player.y > 610) { player.y = 610; } // Evitar que se salga por abajo
+                        break;
+                    case 65: // Tecla A (izquierda)
+                        if (player.x < 0) { player.x = 0; } // Evitar que se salga por la izquierda
+                        break;
+                    case 68: // Tecla D (derecha)
+                        if (player.x > 690) { player.x = 690; } // Evitar que se salga por la derecha
+                        break;
+                }
 
 
                 if (player.seTocan(target)) {
@@ -227,31 +236,31 @@ function dibujar(){
         function repaint() {
             if (!pause) {
                 ctx.fillStyle = "white";
-                ctx.fillRect(0, 0, 600, 600);
+                ctx.fillRect(0, 0, 730, 650);
                 ctx.font = "20px Verdana";
                 ctx.fillStyle = "black";
                 ctx.fillText("SCORE: " + score, 10, 25)
                 player.c = random_rgba();
                 player.paint();
-             //   ctx.drawImage(image, player.x, player.y,50,50);
+                //   ctx.drawImage(image, player.x, player.y,50,50);
 
                 target.paint();
                 //ctx.drawImage(comida, target.x, target.y,40,40);
 
 
-              /*  const cuadroWidth = 100;
-const cuadroHeight = 100;
-const espacio = 50;
-
-for (let i = 0; i < 4; i++) { // Cambia el 4 al número de cuadros que desees
-    const x = i * (cuadroWidth + espacio);
-    const y = espacio;
-
-    ctx.fillStyle = "#3498db";
-    ctx.fillRect(x, y, cuadroWidth, cuadroHeight);
-}*/
+                /*  const cuadroWidth = 100;
+  const cuadroHeight = 100;
+  const espacio = 50;
+  
+  for (let i = 0; i < 4; i++) { // Cambia el 4 al número de cuadros que desees
+      const x = i * (cuadroWidth + espacio);
+      const y = espacio;
+  
+      ctx.fillStyle = "#3498db";
+      ctx.fillRect(x, y, cuadroWidth, cuadroHeight);
+  }*/
                 for (var i = obstaculosIndestruibles.length - 1; i >= 0; i--) {
-                    obstaculosIndestruibles[i].paint();
+                    obstaculosIndestruibles[i].murosIndestructible();
 
                 }
                 for (var i = obstaculosDestruibles.length - 1; i >= 0; i--) {
@@ -259,14 +268,14 @@ for (let i = 0; i < 4; i++) { // Cambia el 4 al número de cuadros que desees
 
                 }
 
-                
+
             } else {
                 ctx.fillStyle = "rgba(154,160,154,0.020)";
-                ctx.fillRect(0, 0, 500, 500);
+                ctx.fillRect(0, 0, 730, 650);
 
                 ctx.font = "30px Verdana";
                 ctx.fillStyle = "black";
-                ctx.fillText("P A U S E", 175, 230)
+                ctx.fillText("P A U S E", 355,350)
             }
         }
         function random_rgba() {
