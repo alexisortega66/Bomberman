@@ -8,7 +8,11 @@
 </head>
 
 <body>
-    <center> <b><label for="score">SCORE: </label></b></center>
+
+    <center><b style="font-size: 30px;"><label for="time">Tiempo: <span id="timer">0</span> segundos</label></b>
+    </center>
+
+
     <center> <canvas width="730" height="650" id="myCanvas">.........................</canvas></center>
 
     <style>
@@ -19,46 +23,34 @@
     </style>
 
     <script>
-
-        //COSAS QUE FALTAN
-        //HACER MAPA DEL BOMBERMAN - OBSTACULOS DESTRUIBLES Y NO DESTRUIBLES
-        //QUE NO PASE DE LOS LIMITES DEL MAPA
-        //VIDAS DEL BOMBERMAN
-        //BOMBAS
-        //EXPLOSIONES
-        //HACER GANADOR
-        //CONTEO DE BLOQUES DESTRUIDOSS
-        //SONIDOS
-
-
         const canvas = document.getElementById('myCanvas');
         const ctx = canvas.getContext('2d')
 
-        var speed = 5;
+        var speed = 20;
         var dir = 0;
-
         let obstaculosDestruibles = [];
         let obstaculosIndestruibles = [];
-
         let pause = false;
-        let score = 0;
-        /*
-        let image = new Image();
-        image.src = "oso-panda.png";
-        let comida = new Image();
-        comida.src = "bambu.png"; 
+        let gano=false;
+        let tiempo = 0; // Variable para contar el tiempo
+        let timerInterval; // Variable para almacenar el intervalo del temporizador
+
         let audio = new Audio();
-        audio.src = "point.mp3";*/
-        let audio = new Audio();
-        audio.src = "bob-theme.mp3";
+        let pausaSound = new Audio();
+
         let piedra = new Image();
-        piedra.src = "bloques.png";
         let algas = new Image();
-        algas.src = "algas-marinas.png";
         let coral = new Image();
-        coral.src = "coral.png";
         let jugador = new Image();
-        jugador.src="bobEsponja.png"
+        let bomba = new Image();
+        bomba.src="medusa.png"
+        jugador.src = "bobEsponja.png"
+        piedra.src = "bloques.png";
+        coral.src = "coral.png";
+        algas.src = "algas-marinas.png";
+
+        audio.src = "bob-theme.mp3";
+        pausaSound.src = "./pausaSound.mp3";
 
         class Rectangulo {
             constructor(x, y, w, h, c) {
@@ -67,17 +59,16 @@
                 this.w = w;
                 this.h = h;
                 this.c = c;
-
-
             }
+
             paint() {
                 ctx.drawImage(jugador, this.x, this.y, this.w, this.h);
-
             }
+
             murosIndestructible() {
                 ctx.drawImage(coral, this.x, this.y, this.w, this.h);
-
             }
+
             seTocan(target) {
                 if (this.x < target.x + target.w &&
                     this.x + this.w > target.x &&
@@ -100,9 +91,6 @@
             dibujarMedusa() {
                 drawImage(medusa, this.x, this.y, this.w, this.h);
             }
-
-
-
         }
 
         class muro {
@@ -121,35 +109,29 @@
 
         }
 
-        const player = new Rectangulo(5, 5, 40, 40, "black");
+        const player = new Rectangulo(20, 20, 40, 40, "black");
         const target = new Rectangulo(350, 350, 30, 30, "black");
 
-        //stones
-        // Crear cuadros azules con cuadros marrones entre ellos
         for (let j = 0; j < 9; j++) {
             for (let i = 0; i < 10; i++) {
                 if (i * 30 > 40 || j * 30 > 40) {
 
-                if (i % 2 === 0 && j % 2 == 0) {
+                    if (i % 2 === 0 && j % 2 == 0) {
 
-                    obstaculosIndestruibles.push(new Rectangulo(20 + i * 70, 20 + j * 70, 50, 50, "blue"));
-                } else {
-                    obstaculosDestruibles.push(new muro(20 + i * 70, 20 + j * 70, 50, 50, "brown"));
+                        obstaculosIndestruibles.push(new Rectangulo(20 + i * 70, 20 + j * 70, 50, 50, "blue"));
+                    } else {
+                        obstaculosDestruibles.push(new muro(20 + i * 70, 20 + j * 70, 50, 50, "brown"));
+                    }
                 }
             }
         }
+
+        function startTimer() {
+            audio.play();
+            tiempo++;
+            document.getElementById("timer").textContent = tiempo;
         }
 
-        function dibujar() {
-
-        }
-
-        // Dibuja los cuadros en el canvas
-        /* obstaculosIndestruibles.push(new Rectangulo(65, 50, 360, 50, "gray"));
-              obstaculosIndestruibles.push(new Rectangulo(65, 410, 360, 50, "gray"));*/
-
-
-        //var t_h, t_w = 40;
         document.addEventListener("keydown", (e) => {
             //ejercicio 26 - frames
             switch (e.keyCode) {
@@ -169,14 +151,24 @@
                     if (!pause) dir = e.keyCode;
                     player.x += speed
                     break;
-                case 32:
+                case 27:
                     //dir=
                     pause = !pause;
+                    pausaSound.play();
+                    if (timerInterval) {
+                        clearInterval(timerInterval);
+                        timerInterval = null
+                    } else {
+                        // Si el temporizador está inactivo, reanúdalo
+                        timerInterval = setInterval(startTimer, 1000);
+                    }
+
                     break;
             }
         })
 
         function update() {
+
             if (!pause) {
                 switch (dir) {
                     case 87: // Tecla W (arriba)
@@ -193,17 +185,32 @@
                         break;
                 }
 
-
-                if (player.seTocan(target)) {
-                    target.x = Math.random() * (460) + 0;
-                    target.y = Math.random() * (460) + 0;
-                    speed += 1;
-                    score += 10;
-                    //audio.play();
-
-                }
                 for (var i = obstaculosIndestruibles.length - 1; i >= 0; i--) {
                     if (player.seTocan(obstaculosIndestruibles[i])) {
+                        switch (dir) {
+                            case 87:
+                                //  dir = 0
+                                player.y += speed;
+                                break;
+                            case 83:
+                                //  dir = 0                      
+                                player.y -= speed;
+                                break;
+                            case 65:
+                                //   dir = 0                    
+                                player.x += speed;
+                                break;
+                            case 68:
+                                //   dir = 0                    
+                                player.x -= speed;
+                                break;
+
+                        }
+                        dir = 0;
+                    }
+                }
+                for (var j = obstaculosDestruibles.length - 1; j >= 0; j--) {
+                    if (player.seTocan(obstaculosDestruibles[j])) {
                         switch (dir) {
                             case 87:
                                 //  dir = 0
@@ -239,26 +246,8 @@
                 ctx.fillRect(0, 0, 730, 650);
                 ctx.font = "20px Verdana";
                 ctx.fillStyle = "black";
-                ctx.fillText("SCORE: " + score, 10, 25)
-                player.c = random_rgba();
                 player.paint();
-                //   ctx.drawImage(image, player.x, player.y,50,50);
-
                 target.paint();
-                //ctx.drawImage(comida, target.x, target.y,40,40);
-
-
-                /*  const cuadroWidth = 100;
-  const cuadroHeight = 100;
-  const espacio = 50;
-  
-  for (let i = 0; i < 4; i++) { // Cambia el 4 al número de cuadros que desees
-      const x = i * (cuadroWidth + espacio);
-      const y = espacio;
-  
-      ctx.fillStyle = "#3498db";
-      ctx.fillRect(x, y, cuadroWidth, cuadroHeight);
-  }*/
                 for (var i = obstaculosIndestruibles.length - 1; i >= 0; i--) {
                     obstaculosIndestruibles[i].murosIndestructible();
 
@@ -267,21 +256,18 @@
                     obstaculosDestruibles[i].dibuarMuro();
 
                 }
-
-
             } else {
                 ctx.fillStyle = "rgba(154,160,154,0.020)";
                 ctx.fillRect(0, 0, 730, 650);
-
                 ctx.font = "30px Verdana";
                 ctx.fillStyle = "black";
-                ctx.fillText("P A U S E", 355,350)
+                ctx.fillText("P A U S E", 300, 340)
             }
         }
-        function random_rgba() {
-            var o = Math.round, r = Math.random, s = 255;
-            return 'rgba(' + o(r() * s) + ',' + o(r() * s) + ',' + o(r() * s) + ',' + r().toFixed(1) + ')';
-        }
+
+        window.addEventListener("load", function () {
+            timerInterval = setInterval(startTimer, 1000); // Actualiza cada segundo (1000 ms)
+        });
 
         window.requestAnimationFrame = (function () {
             return window.requestAnimationFrame ||
