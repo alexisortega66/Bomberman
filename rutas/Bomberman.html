@@ -30,26 +30,37 @@
         var dir = 0;
         let obstaculosDestruibles = [];
         let obstaculosIndestruibles = [];
+        let bombs = [];
         let pause = false;
-        let gano=false;
+        let gano = false;
         let tiempo = 0; // Variable para contar el tiempo
         let timerInterval; // Variable para almacenar el intervalo del temporizador
 
         let audio = new Audio();
         let pausaSound = new Audio();
+        let preparacionEx = new Audio()
+        let Explo = new Audio()
+
 
         let piedra = new Image();
         let algas = new Image();
         let coral = new Image();
         let jugador = new Image();
         let bomba = new Image();
-        bomba.src="../imagenes/medusa.png"
+        //imagenes
+        bomba.src = "../imagenes/medusa.png"
         jugador.src = "../imagenes/bobEsponja.png"
         piedra.src = "../imagenes/bloques.png";
         coral.src = "../imagenes/coral.png";
         algas.src = "../imagenes/algas-marinas.png";
+
+        //sonidos
         audio.src = "../sonidos/bob-theme.mp3";
         pausaSound.src = "../sonidos/pausaSound.mp3";
+        preparacionEx.src = "../sonidos/bfExplosion.mp3";
+        Explo.src = "../sonidos/psExplosion.mp3";
+
+
 
         class Rectangulo {
             constructor(x, y, w, h, c) {
@@ -86,11 +97,27 @@
                 this.y = y;
                 this.w = w;
                 this.h = h;
+
+                this.cuentaRegresiva = 5;
+                this.tiempoBomba = setInterval(function () {
+                    this.cuentaRegresiva--;
+                    if (this.cuentaRegresiva == 1) {
+                        Explo.play();
+                    }
+                    if (this.cuentaRegresiva <= 0) {
+                        bombs.shift();
+                        clearInterval(this.tiempoBomba);
+                    }
+                }.bind(this), 1000);
+                preparacionEx.currentTime = 0;
+                preparacionEx.play();
+
             }
             dibujarMedusa() {
-                drawImage(medusa, this.x, this.y, this.w, this.h);
+                ctx.drawImage(bomba, this.x, this.y, this.w, this.h);
             }
         }
+
 
         class muro {
             constructor(x, y, w, h) {
@@ -153,6 +180,8 @@
                 case 27:
                     pause = !pause;
                     audio.pause();
+                    Explo.pause();
+                    preparacionEx.pause();
                     pausaSound.play();
                     if (timerInterval) {
                         clearInterval(timerInterval);
@@ -163,11 +192,18 @@
                         timerInterval = setInterval(startTimer, 1000);
                     }
                     break;
+                case 32: // Tecla Espacio (colocar bomba)
+                    if (bombs.length < 1) {
+                        bombs.push(new bombas(player.x, player.y, 40, 40));
+                    }
+                    break;
             }
+
         })
 
         function update() {
             if (!pause) {
+
                 switch (dir) {
                     case 87: // Tecla W (arriba)
                         if (player.y < 0) { player.y = 0; } // Evitar que se salga por arriba
@@ -182,6 +218,7 @@
                         if (player.x > 690) { player.x = 690; } // Evitar que se salga por la derecha
                         break;
                 }
+
 
                 for (var i = obstaculosIndestruibles.length - 1; i >= 0; i--) {
                     if (player.seTocan(obstaculosIndestruibles[i])) {
@@ -242,6 +279,10 @@
                 }
                 for (var i = obstaculosDestruibles.length - 1; i >= 0; i--) {
                     obstaculosDestruibles[i].dibuarMuro();
+
+                }
+                for (var i = bombs.length - 1; i >= 0; i--) {
+                    bombs[i].dibujarMedusa();
 
                 }
             } else {
