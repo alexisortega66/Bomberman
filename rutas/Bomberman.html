@@ -9,7 +9,7 @@
 
 <body>
 
-    <center><b style="font-size: 30px;"><label for="time">Tiempo: <span id="timer">0</span> segundos</label></b>
+    <center><b style="font-size: 30px;"><label for="time">Tiempo: <span id="minutos">0</span> : <span></span> <span id="segundos">0 </span></label></b>
     </center>
 
 
@@ -35,6 +35,7 @@
         let gano = false;
         let tiempo = 0; // Variable para contar el tiempo
         let timerInterval; // Variable para almacenar el intervalo del temporizador
+        var minutos=0;
 
         let audio = new Audio();
         let pausaSound = new Audio();
@@ -50,7 +51,6 @@
         //imagenes
         bomba.src = "../imagenes/medusa.png"
         jugador.src = "../imagenes/bobEsponja.png"
-        piedra.src = "../imagenes/bloques.png";
         coral.src = "../imagenes/coral.png";
         algas.src = "../imagenes/algas-marinas.png";
 
@@ -154,8 +154,18 @@
 
         function startTimer() {
             audio.play();
+
             tiempo++;
-            document.getElementById("timer").textContent = tiempo;
+            if (tiempo==60){
+                minutos++
+
+                tiempo=0;
+                tiempo++;
+            }
+
+            document.getElementById("segundos").textContent = tiempo;
+            document.getElementById("minutos").textContent = minutos;
+
         }
 
         document.addEventListener("keydown", (e) => {
